@@ -4,12 +4,19 @@
   "description": "book example",
   "main": "meadowlark.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "lint": "eslint meadowlark.js lib"
   },
   "author": "",
   "license": "MIT OR GPL-3.0",
   "dependencies": {
     "express": "^4.17.1",
     "express-handlebars": "^5.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.20.0",
+    "jest": "^26.6.3",
+    "portfinder": "^1.0.28",
+    "puppeteer": "^7.1.0"
   }
 }
