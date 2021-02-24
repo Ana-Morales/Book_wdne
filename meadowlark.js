@@ -1,10 +1,15 @@
 const express = require('express')
 const expressHandlebars = require('express-handlebars')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
+const expressSession = require('express-session')
 const multiparty = require('multiparty')
 
+const { credentials } = require('./config')
 const handlers = require('./lib/handlers')
 const weatherMiddlware = require('./lib/middleware/weather')
+const flashMiddleware = require('./lib/middleware/flash')
+
 
 const app = express()
 
@@ -24,11 +29,19 @@ app.set('view engine', 'handlebars')
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
+app.use(cookieParser(credentials.cookieSecret))
+app.use(expressSession({
+  resave: false,
+  saveUninitialized: false,
+  secret: credentials.cookieSecret,
+}))
+
 const port = process.env.PORT || 3000
 
 app.use(express.static(__dirname + '/public'))
 
 app.use(weatherMiddlware)
+app.use(flashMiddleware)
 
 app.get('/', handlers.home)
 
@@ -61,6 +74,15 @@ app.post('/api/vacation-photo-contest/:year/:month', (req, res) => {
     handlers.api.vacationPhotoContest(req, res, fields, files)
   })
 })
+
+// vacations
+app.get('/vacations', handlers.listVacations)
+app.get('/notify-me-when-in-season', handlers.notifyWhenInSeasonForm)
+app.post('/notify-me-when-in-season', handlers.notifyWhenInSeasonProcess)
+
+
+// utility routes
+app.get('/set-currency/:currency', handlers.setCurrency)
 
 app.use(handlers.notFound)
 app.use(handlers.serverError)
